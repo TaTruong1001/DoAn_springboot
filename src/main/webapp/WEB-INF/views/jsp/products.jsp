@@ -2,11 +2,14 @@
 <html lang="en">
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <head>
     <jsp:include page="layout/fragments.jsp"></jsp:include>
-
+    <spring:url value="./" var="productListUrl" />
+    <c:set var="currentPage" value="${productList.number}" />
+    <c:set var="totalPages" value="${productList.totalPages}" />
+    <c:set var="productList" value="${productList.content}" />
 </head>
 
 <body id="page-top">
@@ -27,6 +30,18 @@
             <!-- Topbar -->
             <jsp:include page="layout/topsidebar.jsp"></jsp:include>
             <!-- End of Topbar -->
+            <div class="row">
+                <div class="col-xs-12 col-sm-8 col-md-6" style="width:100%;">
+                    <form:form action="search" method="get">
+                        <div class="input-group">
+                            <input name="searchInput" type="text" class="form-control" placeholder="Search by name..." />
+                            <span class="input-group-btn">
+                            <button type="submit" class="btn btn-outline-primary" type="submit">Search</button>
+                        </span>
+                        </div>
+                    </form:form>
+                </div>
+            </div>
 
             <!-- Begin Page Content -->
             <div class="container-fluid">
@@ -90,27 +105,34 @@
                     </tbody>
                 </table>
 
-                <div class="pagination">
-                    <c:if test="${currentPage > 1}">
-                        <a href="/products/${currentPage - 1}">&lt; Previous</a>
-                    </c:if>
+                <spring:url value="./search?searchInput=${searchInput}" var="productListUrl" />
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        <li class="page-item ${currentPage == 0 ? 'disabled' : ''}">
+                            <spring:url value="${productListUrl}" var="previousPageUrl">
+                                <spring:param name="page" value="${currentPage - 1}" />
+                            </spring:url>
+                            <a class="page-link" href="${previousPageUrl}" tabindex="-1">
+                                <<</a>
+                        </li>
+                        <c:forEach var="i" begin="0" end="${totalPages - 1}">
+                            <spring:url value="${productListUrl}" var="pageUrl">
+                                <spring:param name="page" value="${i}" />
+                            </spring:url>
+                            <li class="page-item ${currentPage == i ? 'active' : ''}">
+                                <a class="page-link" href="${pageUrl}">${i + 1}</a>
+                            </li>
+                        </c:forEach>
+                        <li class="page-item ${currentPage == totalPages - 1 ? 'disabled' : ''}">
+                            <spring:url value="${productListUrl}" var="nextPageUrl">
+                                <spring:param name="page" value="${currentPage + 1}" />
+                            </spring:url>
+                            <a class="page-link" href="${nextPageUrl}">>></a>
+                        </li>
+                    </ul>
+                </nav>
 
-                    <c:forEach begin="1" end="${totalPages}" var="pageNumber">
-                        <c:choose>
-                            <c:when test="${pageNumber == currentPage}">
-                                <strong>${pageNumber}</strong>
-                            </c:when>
-                            <c:otherwise>
-                                <a href="/products/${pageNumber}">${pageNumber}</a>
-                            </c:otherwise>
-                        </c:choose>
-                    </c:forEach>
-
-                    <c:if test="${currentPage < totalPages}">
-                        <a href="/products/${currentPage + 1}">Next &gt;</a>
-                    </c:if>
-                </div>
-        <!-- End of Main Content -->
+                <!-- End of Main Content -->
 
         <!-- Footer -->
         <footer>

@@ -7,7 +7,6 @@ import com.example.doan_01.mvc.service.ProductService;
 import com.example.doan_01.mvc.utils.ImageUpload;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,11 +22,12 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     ImageUpload imageUpload;
 
-    @Override
-    public Page<Product> pageProduct(int pageNo) {
-      Pageable pageable = PageRequest.of(pageNo, 5);
-      Page<Product> productPage = productRepository.pageProduct(pageable);
-        return productPage;
+    public Page<Product> getAllProduct(Pageable pageable) {
+        return productRepository.findAll(pageable);
+    }
+
+    public Page<Product> getProductsByName(String searchInput, Pageable pageable) {
+        return productRepository.getByNameContaining(searchInput,pageable);
     }
 
     @Override

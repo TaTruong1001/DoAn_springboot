@@ -8,6 +8,8 @@ import com.example.doan_01.mvc.service.CategoryService;
 import com.example.doan_01.mvc.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -35,19 +37,22 @@ public class ProductController {
         model.addAttribute("size", productDtoList.size());
         return "products";
     }
-    @RequestMapping(value = "/products/{pageNo}",method = RequestMethod.GET)
-    public String prodcutPage(@PathVariable("pageNo") int pageNo, Model model, Principal principal){
-        if (principal == null) {
-            return "redirect:/login";
+    @GetMapping(value={ "/search"})
+    public String showProducts(Model model, @RequestParam(name="searchInput", required=false, defaultValue="") String searchInput,
+                               @RequestParam(defaultValue = "0") int page,
+                               @RequestParam(defaultValue = "2") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Product> searchList;
+        if (searchInput.isEmpty()) {
+            searchList = (Page<Product>) productService.getAllProduct(pageable);
+        } else {
+            searchList = productService.getProductsByName(searchInput, pageable);
         }
-        Page<Product> products = productService.pageProduct(pageNo);
-        model.addAttribute("title", "Manage Products");
-        model.addAttribute("size", products.getSize());
-        model.addAttribute("products", products);
-        model.addAttribute("currentPage", pageNo);
-        model.addAttribute("totalPages", products.getTotalPages());
-        return "products";
+        model.addAttribute("productList", searchList);
+        model.addAttribute("searchInput", searchInput);
+        return "product";
     }
+
 
     @RequestMapping(value = "/add-product", method = RequestMethod.GET)
     private String addProduct(Model model, Principal principal) {
