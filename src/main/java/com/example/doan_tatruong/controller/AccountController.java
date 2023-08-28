@@ -29,7 +29,7 @@ public class AccountController {
 
         return "account";
     }
-    @RequestMapping(value = "customer/update-info", method = {RequestMethod.PUT,RequestMethod.GET})
+    @RequestMapping(value = "/customer/update-info", method = {RequestMethod.PUT,RequestMethod.GET})
     public String updateUser(Model model, Principal principal,
                              @ModelAttribute("user") User user, RedirectAttributes attributes){
         if (principal == null){
@@ -37,7 +37,7 @@ public class AccountController {
         }
         User userSaved = userService.saveInfo(user);
         attributes.addFlashAttribute("user", userSaved);
-        return "redirect:/account";
+        return "redirect:/customer/account";
     }
     @RequestMapping(value = "customer/profile", method = RequestMethod.GET)
     public String profile(Principal principal, Model model){
